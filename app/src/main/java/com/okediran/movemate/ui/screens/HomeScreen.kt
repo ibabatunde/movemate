@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -49,6 +50,7 @@ import com.okediran.movemate.Screen
 import com.okediran.movemate.ui.theme.MainColor
 import com.okediran.movemate.ui.theme.MoveMateTheme
 import com.okediran.movemate.ui.theme.SecondaryColor
+import com.okediran.movemate.ui.theme.TextMainColor
 import com.okediran.movemate.ui.theme.Typography
 
 @Composable
@@ -82,7 +84,7 @@ fun HomeScreen(navController: NavHostController) {
 @Composable
 fun VehicleView() {
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Available vehicles", style = Typography.bodyLarge)
+        Text("Available vehicles", style = Typography.bodyLarge.copy(color = TextMainColor))
         Spacer(modifier = Modifier.height(16.dp))
         LazyRow(
             modifier = Modifier
@@ -141,7 +143,7 @@ fun TrackingView() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text("Tracking", style = Typography.bodyLarge)
+        Text("Tracking", style = Typography.bodyLarge.copy(color = TextMainColor))
         Spacer(modifier = Modifier.height(16.dp))
         Card(
             modifier = Modifier
@@ -263,7 +265,8 @@ fun TrackingView() {
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f)
-                            .padding(8.dp)
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
                             Text(
@@ -280,7 +283,11 @@ fun TrackingView() {
                             }
                         }
                         Column {
-
+                            Text(
+                                "Status",
+                                style = Typography.bodySmall.copy(color = Color.Gray)
+                            )
+                            Text("Waiting to collect", style = Typography.bodyMedium)
                         }
                     }
                 }
@@ -295,8 +302,20 @@ fun TrackingView() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
-                        .weight(1f)
-                ) { }
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_add),
+                        contentDescription = "Add",
+                        modifier = Modifier.size(25.dp),
+                        tint = SecondaryColor
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add Stop", style = Typography.bodyMedium.copy(color = SecondaryColor))
+                }
             }
         }
     }
@@ -337,7 +356,7 @@ fun HeaderView(navController: NavHostController) {
                     Icon(
                         painter = painterResource(R.drawable.ic_location),
                         contentDescription = "Location",
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(16.dp).rotate(315f),
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -366,13 +385,22 @@ fun HeaderView(navController: NavHostController) {
             Card(
                 modifier = Modifier
                     .size(40.dp),
-                shape = CircleShape
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_notification),
-                    contentDescription = "Notification",
-                    modifier = Modifier.fillMaxSize()
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
                 )
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_notification),
+                        contentDescription = "Notification",
+                        modifier = Modifier.size(25.dp),
+                    )
+                }
+
             }
         }
 

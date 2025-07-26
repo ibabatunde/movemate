@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.okediran.movemate.navigation.BottomNavigationBar
+import com.okediran.movemate.ui.screens.CalculateResultScreen
 import com.okediran.movemate.ui.screens.CalculateScreen
 import com.okediran.movemate.ui.screens.HomeScreen
 import com.okediran.movemate.ui.screens.ProfileScreen
@@ -26,6 +27,7 @@ sealed class Screen(val route: String, val title: String, val icon: Int) {
     object Shipment : Screen("shipment", "Shipment",  R.drawable.ic_history)
     object Profile : Screen("profile", "Profile", R.drawable.ic_person)
     object Search : Screen("search", "Search", R.drawable.ic_search)
+    object CalculateResult : Screen("calculate_result", "Calculate Result", R.drawable.ic_search)
 }
 @Composable
 fun MyApp() {
@@ -53,7 +55,10 @@ fun MyApp() {
                 ProfileScreen(navController = navController, screen = Screen.Profile)
             }
             composable(Screen.Search.route) {
-                SearchScreen(navController = navController, screen = Screen.Search)
+                SearchScreen(navController = navController)
+            }
+            composable(Screen.CalculateResult.route) {
+                CalculateResultScreen(navController = navController)
             }
         }
     }
