@@ -1,5 +1,9 @@
 package com.okediran.movemate.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +32,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,281 +61,37 @@ import com.okediran.movemate.ui.theme.MoveMateTheme
 import com.okediran.movemate.ui.theme.SecondaryColor
 import com.okediran.movemate.ui.theme.TextMainColor
 import com.okediran.movemate.ui.theme.Typography
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Box(
+        HeaderView(
+            navController = navController,
             modifier = Modifier
-                .fillMaxSize()
                 .weight(2f)
+                .fillMaxWidth()
                 .background(MainColor)
-        ) {
-            HeaderView(navController)
-        }
-        Box(
+        )
+
+        TrackingView(
             modifier = Modifier
-                .fillMaxSize()
                 .weight(3f)
-        ) {
-            TrackingView()
-        }
-        Box(
+                .fillMaxWidth()
+        )
+
+        VehicleView(
             modifier = Modifier
-                .fillMaxSize()
                 .weight(2f)
-        ) {
-            VehicleView()
-        }
-    }
-}
-
-@Composable
-fun VehicleView() {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("Available vehicles", style = Typography.bodyLarge.copy(color = TextMainColor))
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyRow(
-            modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            itemsIndexed(
-                listOf(
-                    Vehicle("Ocean freight", "International", R.drawable.shipper),
-                    Vehicle("Cargo freight", "Reliable", R.drawable.trucks),
-                    Vehicle("Air freight", "International", R.drawable.plane),
-                    Vehicle("Ocean freight", "International", R.drawable.shipper),
-                    Vehicle("Cargo freight", "Reliable", R.drawable.trucks),
-                    Vehicle("Air freight", "International", R.drawable.plane)
-                )
-            ) { index, vehicle ->
-                Card(
-                    modifier = Modifier
-                        .width(160.dp)
-                        .height(200.dp)
-                        .padding(end = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.White)
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(vehicle.heading, style = Typography.bodyLarge)
-                            Text(vehicle.subHeading, style = Typography.bodySmall)
-                        }
-                        Image(
-                            painter = painterResource(vehicle.img),
-                            contentDescription = "Vehicle",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .height(100.dp)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                        )
-                    }
-                }
-            }
-        }
+        )
     }
 }
 
 @Composable
-fun TrackingView() {
+fun HeaderView(navController: NavHostController, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text("Tracking", style = Typography.bodyLarge.copy(color = TextMainColor))
-        Spacer(modifier = Modifier.height(16.dp))
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 4.dp
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .padding(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(
-                            "Shipment Number",
-                            style = Typography.bodySmall.copy(color = Color.Gray)
-                        )
-                        Text(
-                            "NEJ20089934122231",
-                            style = Typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                        )
-                    }
-                    Image(
-                        painter = painterResource(R.drawable.load_track),
-                        contentDescription = "Location",
-                        modifier = Modifier.size(64.dp)
-                    )
-                }
-                HorizontalDivider(
-                    color = Color.Gray,
-                    thickness = 0.5.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .weight(3f)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row {
-                            Card(
-                                modifier = Modifier.size(30.dp),
-                                shape = CircleShape,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = SecondaryColor.copy(
-                                        alpha = 0.4f
-                                    )
-                                )
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_package),
-                                    contentDescription = "Package",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    "Sender",
-                                    style = Typography.bodySmall.copy(color = Color.Gray)
-                                )
-                                Text(
-                                    "Atlanta, 5243",
-                                    style = Typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-                                )
-                            }
-                        }
-
-                        Row {
-                            Card(
-                                modifier = Modifier.size(30.dp),
-                                shape = CircleShape,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color.Green.copy(
-                                        alpha = 0.4f
-                                    )
-                                )
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_package),
-                                    contentDescription = "Package",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    "Sender",
-                                    style = Typography.bodySmall.copy(color = Color.Gray)
-                                )
-                                Text(
-                                    "Atlanta, 5243",
-                                    style = Typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-                                )
-                            }
-                        }
-                    }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(
-                                "Time",
-                                style = Typography.bodySmall.copy(color = Color.Gray)
-                            )
-                            Row(modifier = Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Card(
-                                    modifier = Modifier.size(10.dp),
-                                    colors = CardDefaults.cardColors(Color.Green)
-                                ) { }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("2 days - 3 days", style = Typography.bodyMedium)
-                            }
-                        }
-                        Column {
-                            Text(
-                                "Status",
-                                style = Typography.bodySmall.copy(color = Color.Gray)
-                            )
-                            Text("Waiting to collect", style = Typography.bodyMedium)
-                        }
-                    }
-                }
-                HorizontalDivider(
-                    color = Color.Gray,
-                    thickness = 0.5.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_add),
-                        contentDescription = "Add",
-                        modifier = Modifier.size(25.dp),
-                        tint = SecondaryColor
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add Stop", style = Typography.bodyMedium.copy(color = SecondaryColor))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun HeaderView(navController: NavHostController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = modifier.padding(16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -335,8 +100,7 @@ fun HeaderView(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Card(
-                modifier = Modifier
-                    .size(40.dp),
+                modifier = Modifier.size(40.dp),
                 shape = CircleShape
             ) {
                 Image(
@@ -348,10 +112,7 @@ fun HeaderView(navController: NavHostController) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Row {
                     Icon(
                         painter = painterResource(R.drawable.ic_location),
@@ -380,15 +141,13 @@ fun HeaderView(navController: NavHostController) {
                     )
                 }
             }
+
             Spacer(modifier = Modifier.width(8.dp))
 
             Card(
-                modifier = Modifier
-                    .size(40.dp),
+                modifier = Modifier.size(40.dp),
                 shape = CircleShape,
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                )
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -400,14 +159,12 @@ fun HeaderView(navController: NavHostController) {
                         modifier = Modifier.size(25.dp),
                     )
                 }
-
             }
         }
 
-        Spacer(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(0.2f)
+        Spacer(modifier = Modifier
+            .fillMaxHeight()
+            .weight(0.2f)
         )
 
         Box(
@@ -419,12 +176,9 @@ fun HeaderView(navController: NavHostController) {
                     navController.navigate(Screen.Search.route)
                 }
         ) {
-
             Card(
                 shape = RoundedCornerShape(30.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
+                modifier = Modifier.fillMaxWidth().fillMaxHeight()
             ) {
                 Row(
                     modifier = Modifier
@@ -456,7 +210,265 @@ fun HeaderView(navController: NavHostController) {
                     )
                 }
             }
+        }
+    }
+}
 
+@Composable
+fun TrackingView(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text("Tracking", style = Typography.bodyLarge.copy(color = TextMainColor))
+        Spacer(modifier = Modifier.height(16.dp))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 4.dp
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            "Shipment Number",
+                            style = Typography.bodySmall.copy(color = Color.Gray)
+                        )
+                        Text(
+                            "NEJ20089934122231",
+                            style = Typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                        )
+                    }
+                    Image(
+                        painter = painterResource(R.drawable.load_track),
+                        contentDescription = "Location",
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
+
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 0.5.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(3f)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row {
+                            Card(
+                                modifier = Modifier.size(30.dp),
+                                shape = CircleShape,
+                                colors = CardDefaults.cardColors(
+                                    containerColor = SecondaryColor.copy(alpha = 0.4f)
+                                )
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_package),
+                                    contentDescription = "Package",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    "Sender",
+                                    style = Typography.bodySmall.copy(color = Color.Gray)
+                                )
+                                Text(
+                                    "Atlanta, 5243",
+                                    style = Typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                                )
+                            }
+                        }
+
+                        Row {
+                            Card(
+                                modifier = Modifier.size(30.dp),
+                                shape = CircleShape,
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.Green.copy(alpha = 0.4f)
+                                )
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_package),
+                                    contentDescription = "Package",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    "Receiver",
+                                    style = Typography.bodySmall.copy(color = Color.Gray)
+                                )
+                                Text(
+                                    "Chicago, 2342",
+                                    style = Typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                                )
+                            }
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                "Time",
+                                style = Typography.bodySmall.copy(color = Color.Gray)
+                            )
+                            Row(
+                                modifier = Modifier.padding(top = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Card(
+                                    modifier = Modifier.size(10.dp),
+                                    colors = CardDefaults.cardColors(Color.Green)
+                                ) { }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("2 days - 3 days", style = Typography.bodyMedium)
+                            }
+                        }
+
+                        Column {
+                            Text(
+                                "Status",
+                                style = Typography.bodySmall.copy(color = Color.Gray)
+                            )
+                            Text("Waiting to collect", style = Typography.bodyMedium)
+                        }
+                    }
+                }
+
+                HorizontalDivider(
+                    color = Color.Gray,
+                    thickness = 0.5.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_add),
+                        contentDescription = "Add",
+                        modifier = Modifier.size(25.dp),
+                        tint = SecondaryColor
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add Stop", style = Typography.bodyMedium.copy(color = SecondaryColor))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun VehicleView(modifier: Modifier = Modifier) {
+    val vehicles = remember {
+        listOf(
+            Vehicle("Ocean freight", "International", R.drawable.shipper),
+            Vehicle("Cargo freight", "Reliable", R.drawable.trucks),
+            Vehicle("Air freight", "International", R.drawable.plane),
+            Vehicle("Ocean freight", "International", R.drawable.shipper),
+            Vehicle("Cargo freight", "Reliable", R.drawable.trucks),
+            Vehicle("Air freight", "International", R.drawable.plane)
+        )
+    }
+
+    Column(
+        modifier = modifier.padding(16.dp)
+    ) {
+        Text("Available vehicles", style = Typography.bodyLarge.copy(color = TextMainColor))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            itemsIndexed(vehicles) { index, vehicle ->
+                var visible by remember { mutableStateOf(false) }
+
+                LaunchedEffect(Unit) {
+                    delay(index * 100L)
+                    visible = true
+                }
+
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = slideInHorizontally(
+                        initialOffsetX = { it / 2 },
+                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .width(160.dp)
+                            .height(200.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(vehicle.heading, style = Typography.bodyLarge)
+                                Text(vehicle.subHeading, style = Typography.bodySmall)
+                            }
+                            Image(
+                                painter = painterResource(vehicle.img),
+                                contentDescription = "Vehicle",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .height(100.dp)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

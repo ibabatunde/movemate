@@ -18,7 +18,7 @@ import com.okediran.movemate.ui.screens.CalculateScreen
 import com.okediran.movemate.ui.screens.HomeScreen
 import com.okediran.movemate.ui.screens.ProfileScreen
 import com.okediran.movemate.ui.screens.SearchScreen
-import com.okediran.movemate.ui.screens.ShippingScreen
+import com.okediran.movemate.ui.screens.ShipmentsTabLayout
 
 
 sealed class Screen(val route: String, val title: String, val icon: Int) {
@@ -49,7 +49,7 @@ fun MyApp() {
                 CalculateScreen(navController = navController, screen = Screen.Calculate)
             }
             composable(Screen.Shipment.route) {
-                ShippingScreen(navController = navController, screen = Screen.Shipment)
+                ShipmentsTabLayout(navController = navController, screen = Screen.Shipment)
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(navController = navController, screen = Screen.Profile)

@@ -52,11 +52,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.okediran.movemate.R
 import com.okediran.movemate.Screen
@@ -70,6 +73,8 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalculateScreen(navController: NavHostController, screen: Screen) {
+    val selectedCategories = remember { mutableStateListOf<String>() }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -93,52 +98,7 @@ fun CalculateScreen(navController: NavHostController, screen: Screen) {
                     navigationIconContentColor = Color.White
                 )
             )
-        }
-    ) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = it.calculateTopPadding())
-
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(3f)
-            ) {
-                DestinationBox()
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1.5f)
-            ) {
-                PackagingBox()
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(2f)
-            ) {
-                CategoriesBox(navController)
-            }
-        }
-    }
-
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun CategoriesBox(navController: NavHostController) {
-    val selectedCategories = remember { mutableStateListOf<String>() }
-    val categories = listOf(
-        "Document", "Glass", "Liquid", "Food", "Electronics", "Product", "Others"
-    )
-
-    Scaffold(
+        },
         bottomBar = {
             Box(
                 modifier = Modifier
@@ -151,10 +111,8 @@ fun CategoriesBox(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = SecondaryColor,
-                    )
-
+                    colors = ButtonDefaults.buttonColors(containerColor = SecondaryColor),
+                    enabled = selectedCategories.isNotEmpty() // Optional: disable if empty
                 ) {
                     Text(
                         "Calculate",
@@ -165,46 +123,74 @@ fun CategoriesBox(navController: NavHostController) {
             }
         }
     ) { paddingValues ->
-        LazyColumn(
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = 16.dp,
-                bottom = paddingValues.calculateBottomPadding() + 72.dp // Add space above button
-            ),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding(), bottom = paddingValues.calculateBottomPadding())
         ) {
-            item {
-                Text("Categories", style = Typography.bodyLarge.copy(color = TextMainColor))
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("What are you sending?", style = Typography.bodyMedium.copy(color = Color.Gray))
-                Spacer(modifier = Modifier.height(8.dp))
+            Box(modifier = Modifier.weight(3f).fillMaxWidth()) {
+                DestinationBox()
             }
-
-            item {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    categories.forEach { category ->
-                        CategoryPill(
-                            category = category,
-                            isChecked = selectedCategories.contains(category)
-                        ) { isChecked ->
-                            if (isChecked) {
-                                selectedCategories.add(category)
-                            } else {
-                                selectedCategories.remove(category)
-                            }
+            Box(modifier = Modifier.weight(1.5f).fillMaxWidth()) {
+                PackagingBox()
+            }
+            Box(modifier = Modifier.weight(2f).fillMaxWidth()) {
+                CategoriesBox(
+                    selectedCategories = selectedCategories,
+                    onCategoryChange = { category, isChecked ->
+                        if (isChecked) {
+                            selectedCategories.add(category)
+                        } else {
+                            selectedCategories.remove(category)
                         }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun CategoriesBox(
+    selectedCategories: List<String>,
+    onCategoryChange: (category: String, isChecked: Boolean) -> Unit
+) {
+    val categories = listOf(
+        "Document", "Glass", "Liquid", "Food", "Electronics", "Product", "Others"
+    )
+
+    LazyColumn(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item {
+            Text("Categories", style = Typography.bodyLarge.copy(color = TextMainColor))
+            Spacer(modifier = Modifier.height(4.dp))
+            Text("What are you sending?", style = Typography.bodyMedium.copy(color = Color.Gray))
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                categories.forEach { category ->
+                    CategoryPill(
+                        category = category,
+                        isChecked = selectedCategories.contains(category)
+                    ) { isChecked ->
+                        onCategoryChange(category, isChecked)
                     }
                 }
             }
         }
     }
 }
+
 
 
 private enum class PillState { Idle, Pressed }
@@ -338,7 +324,7 @@ fun DestinationBox() {
             .padding(16.dp)
     ) {
         Text("Destination", style = Typography.bodyLarge.copy(color = TextMainColor))
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Card(
             modifier = Modifier.fillMaxSize(),
             elevation = CardDefaults.cardElevation(4.dp),
@@ -347,7 +333,7 @@ fun DestinationBox() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 var senderLocation by remember { mutableStateOf("") }
                 var receiverLocation by remember { mutableStateOf("") }
@@ -383,8 +369,9 @@ fun DestinationBox() {
                         TextField(
                             value = senderLocation,
                             onValueChange = { senderLocation = it },
-                            placeholder = { Text("Sender location") },
+                            placeholder = { Text("Sender location", style = Typography.bodyMedium) },
                             singleLine = true,
+                            textStyle = Typography.bodyMedium,
                             modifier = Modifier.weight(1f),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
@@ -436,7 +423,8 @@ fun DestinationBox() {
                         TextField(
                             value = receiverLocation,
                             onValueChange = { receiverLocation = it },
-                            placeholder = { Text("Receiver location") },
+                            placeholder = { Text("Receiver location", style = Typography.bodyMedium) },
+                            textStyle = Typography.bodyMedium,
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
@@ -492,7 +480,8 @@ fun DestinationBox() {
                         TextField(
                             value = weight,
                             onValueChange = { weight = it },
-                            placeholder = { Text("Approx weight") },
+                            placeholder = { Text("Approx weight", style = Typography.bodyMedium) },
+                            textStyle = Typography.bodyMedium,
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
