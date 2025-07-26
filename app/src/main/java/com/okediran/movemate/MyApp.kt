@@ -16,6 +16,7 @@ import com.okediran.movemate.navigation.BottomNavigationBar
 import com.okediran.movemate.ui.screens.CalculateScreen
 import com.okediran.movemate.ui.screens.HomeScreen
 import com.okediran.movemate.ui.screens.ProfileScreen
+import com.okediran.movemate.ui.screens.SearchScreen
 import com.okediran.movemate.ui.screens.ShippingScreen
 
 
@@ -24,6 +25,7 @@ sealed class Screen(val route: String, val title: String, val icon: Int) {
     object Calculate : Screen("calculate", "Calculate",  R.drawable.ic_calculate)
     object Shipment : Screen("shipment", "Shipment",  R.drawable.ic_history)
     object Profile : Screen("profile", "Profile", R.drawable.ic_person)
+    object Search : Screen("search", "Search", R.drawable.ic_search)
 }
 @Composable
 fun MyApp() {
@@ -49,6 +51,9 @@ fun MyApp() {
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(navController = navController, screen = Screen.Profile)
+            }
+            composable(Screen.Search.route) {
+                SearchScreen(navController = navController, screen = Screen.Search)
             }
         }
     }
